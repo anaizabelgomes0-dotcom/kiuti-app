@@ -1,61 +1,31 @@
 import 'package:flutter/material.dart';
 
-class LogoKiuti extends StatelessWidget {
-  final double largura;
+import 'package:kiuti_app/theme/cores.dart';
 
-  const LogoKiuti({
-    super.key,
-    this.largura = 150,
-  });
+/// A palavra KIUTI no topo das abas.
+class LogoKiuti extends StatelessWidget {
+  const LogoKiuti({super.key, this.altura = 28});
+
+  final double altura;
 
   @override
-  Widget build(BuildContext context) {
-    return Image.asset(
-      'assets/logo.png',
-      width: largura,
-      fit: BoxFit.contain,
-      errorBuilder: (context, erro, stackTrace) {
-        return Text(
-          'Kiuti',
-          style: TextStyle(
-            fontSize: largura * 0.25,
-            fontWeight: FontWeight.bold,
-          ),
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) => Image.asset('assets/logo.png', height: altura);
 }
 
-class MascoteKiuti extends StatelessWidget {
-  final double tamanho;
+/// O gato: só em estados vazios, confirmações e avisos de exclusão.
+class Mascote extends StatelessWidget {
+  const Mascote({super.key, this.tamanho = 96});
 
-  const MascoteKiuti({
-    super.key,
-    this.tamanho = 100,
-  });
+  final double tamanho;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: tamanho,
       height: tamanho,
-      decoration: const BoxDecoration(
-        color: Color(0xFFFCE4EC),
-        shape: BoxShape.circle,
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Image.asset(
-        'assets/mascote.png',
-        fit: BoxFit.contain,
-        errorBuilder: (context, erro, stackTrace) {
-          return const Icon(
-            Icons.favorite,
-            color: Color(0xFFD9534F),
-            size: 40,
-          );
-        },
-      ),
+      padding: EdgeInsets.all(tamanho * 0.12),
+      decoration: const BoxDecoration(color: Cores.rosa, shape: BoxShape.circle),
+      child: Image.asset('assets/mascote.png'),
     );
   }
 }

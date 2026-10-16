@@ -1,3 +1,4 @@
+/// Situação do produto (contrato: "na_meta", "abaixo_da_meta", "ficha_incompleta").
 enum Situacao {
   naMeta,
   abaixoDaMeta,

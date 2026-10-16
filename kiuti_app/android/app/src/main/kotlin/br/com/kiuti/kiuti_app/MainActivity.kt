@@ -1,4 +1,4 @@
-package com.example.kiuti_app
+package br.com.kiuti.kiuti_app
 
 import io.flutter.embedding.android.FlutterActivity
 

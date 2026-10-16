@@ -3,24 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'cores.dart';
 
-TextStyle fredoka({
-  double tamanho = 16,
-  FontWeight peso = FontWeight.w600,
-  Color cor = Cores.preto,
-}) {
-  return GoogleFonts.fredoka(
-    fontSize: tamanho,
-    fontWeight: peso,
-    color: cor,
-  );
-}
+/// Fredoka nos títulos, preços e botões; DM Sans nos textos.
+TextStyle fredoka({double tamanho = 16, FontWeight peso = FontWeight.w600, Color cor = Cores.preto}) =>
+    GoogleFonts.fredoka(fontSize: tamanho, fontWeight: peso, color: cor);
 
 ThemeData criarTema() {
   final borda = OutlineInputBorder(
     borderRadius: BorderRadius.circular(14),
     borderSide: const BorderSide(color: Cores.borda),
   );
-
   return ThemeData(
     colorScheme: ColorScheme.fromSeed(
       seedColor: Cores.rosa,
@@ -45,9 +36,7 @@ ThemeData criarTema() {
       fillColor: Colors.white,
       border: borda,
       enabledBorder: borda,
-      focusedBorder: borda.copyWith(
-        borderSide: const BorderSide(color: Cores.preto, width: 1.5),
-      ),
+      focusedBorder: borda.copyWith(borderSide: const BorderSide(color: Cores.preto, width: 1.5)),
     ),
   );
 }
