@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kiuti_app/providers/sessao_provider.dart';
 import 'package:kiuti_app/ui/screens/home_screen.dart';
 import 'package:kiuti_app/ui/screens/login_screen.dart';
+import 'package:kiuti_app/ui/screens/configuracoes/configuracoes_screen.dart';
+import 'package:kiuti_app/ui/screens/produtos/produtos_screen.dart';
 
 /// Todas as rotas do app. Sem token, qualquer rota leva ao login; com token, o login leva às abas.
 GoRouter criarRotas(SessaoProvider sessao) {
@@ -24,7 +26,7 @@ GoRouter criarRotas(SessaoProvider sessao) {
         routes: [
           GoRoute(
             path: '/produtos',
-            builder: (context, state) => const Center(child: Text('Produtos: em construção (I0-FL-12)')),
+            builder: (context, state) => const ProdutosScreen(),
           ),
           GoRoute(
             path: '/insumos',
@@ -36,7 +38,7 @@ GoRouter criarRotas(SessaoProvider sessao) {
           ),
           GoRoute(
             path: '/configuracoes',
-            builder: (context, state) => const Center(child: Text('Configurações: em construção (I0-FL-07)')),
+            builder: (context, state) => const ConfiguracoesScreen(),
           ),
         ],
       ),
