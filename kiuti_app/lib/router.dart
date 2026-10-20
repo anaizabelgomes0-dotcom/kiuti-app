@@ -10,11 +10,10 @@ GoRouter criarRotas(SessaoProvider sessao) {
     initialLocation: '/produtos',
     refreshListenable: sessao, // a sessão mudou (entrou, saiu, token venceu): o redirect roda de novo
     redirect: (context, state) {
-      return null; // TESTE: login desligado. Voltar antes do commit!
-      // final naTelaDeLogin = state.matchedLocation == '/login';
-      // if (!sessao.logado) return naTelaDeLogin ? null : '/login';
-      // if (naTelaDeLogin) return '/produtos';
-      // return null; // segue para onde ia
+      final naTelaDeLogin = state.matchedLocation == '/login';
+      if (!sessao.logado) return naTelaDeLogin ? null : '/login';
+      if (naTelaDeLogin) return '/produtos';
+      return null; // segue para onde ia
     },
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
