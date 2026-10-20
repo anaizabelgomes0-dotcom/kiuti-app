@@ -25,8 +25,15 @@ Ela sobe em `http://localhost:8000`. Para testar as rotas sem o app, use o Swagg
 ## Usar no app
 
 Nada muda no app: o `lib/config.dart` já aponta para `http://10.0.2.2:8000`, que é o PC visto de dentro do emulador.
-Num celular de verdade no mesmo Wi-Fi, troque pelo IP do PC (`http://<IP do PC>:8000`). A API de teste já ouve em
-`0.0.0.0`.
+Em outros lugares, troque a URL (sem fazer commit da troca):
+
+| App rodando em | `apiUrl` |
+|---|---|
+| emulador Android | `http://10.0.2.2:8000` (o padrão) |
+| Chrome (`flutter run -d chrome`) ou Windows | `http://127.0.0.1:8000` |
+| celular de verdade no mesmo Wi-Fi | `http://<IP do PC>:8000` (a API de teste já ouve em `0.0.0.0`) |
+
+O CORS está liberado, então o Chrome não barra as requisições.
 
 **Login:** `keila` / `kiuti123`. O token é fixo e não vence.
 

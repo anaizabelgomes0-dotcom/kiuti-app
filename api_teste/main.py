@@ -11,6 +11,7 @@ from decimal import ROUND_CEILING, ROUND_HALF_UP, Decimal, InvalidOperation
 import uvicorn
 from fastapi import APIRouter, Body, Depends, FastAPI
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -83,6 +84,8 @@ class Erro(Exception):
 
 
 app = FastAPI(title="Kiuti — API de teste", description="Dados em memória. Login: keila / kiuti123.")
+# CORS liberado: sem isso, o app rodando no Chrome (flutter run -d chrome) é barrado no OPTIONS do navegador.
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
 @app.exception_handler(Erro)
