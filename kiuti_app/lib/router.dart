@@ -6,8 +6,9 @@ import 'package:kiuti_app/ui/screens/login_screen.dart';
 import 'package:kiuti_app/ui/screens/configuracoes/configuracoes_screen.dart';
 import 'package:kiuti_app/ui/screens/produtos/produtos_screen.dart';
 import 'package:kiuti_app/ui/screens/produtos/ficha_screen.dart';
-
-/// Todas as rotas do app. Sem token, qualquer rota leva ao login; com token, o login leva às abas.
+import 'package:kiuti_app/ui/screens/insumos/insumos_screen.dart';
+import 'package:kiuti_app/ui/screens/insumos/insumo_form_screen.dart';
+import 'package:kiuti_app/models/insumo.dart';
 GoRouter criarRotas(SessaoProvider sessao) {
   return GoRouter(
     initialLocation: '/produtos',
@@ -31,7 +32,7 @@ GoRouter criarRotas(SessaoProvider sessao) {
           ),
           GoRoute(
             path: '/insumos',
-            builder: (context, state) => const Center(child: Text('Insumos: em construção (I0-FL-08)')),
+            builder: (context, state) => const InsumosScreen(),
           ),
           GoRoute(
             path: '/reajustes',
@@ -47,7 +48,12 @@ GoRouter criarRotas(SessaoProvider sessao) {
 ),
         ],
       ),
-       
+      
+      GoRoute(path: '/insumos/novo', builder: (context, state) => const InsumoFormScreen()),
+      GoRoute(
+        path: '/insumos/editar',
+        builder: (context, state) => InsumoFormScreen(insumo: state.extra as Insumo),
+      ),
 
       // Telas que abrem por cima das abas (com context.push). Cada tarefa acrescenta a sua aqui.
     ],
