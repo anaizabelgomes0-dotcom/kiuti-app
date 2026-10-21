@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kiuti_app/models/produto.dart';
 import 'package:kiuti_app/models/situacao.dart';
 import 'package:kiuti_app/providers/produtos_provider.dart';
@@ -26,10 +27,12 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
     // Depois do primeiro desenho: chamar o provider durante o build da tela dá erro.
     WidgetsBinding.instance.addPostFrameCallback((_) => context.read<ProdutosProvider>().carregar());
   }
-
-  // Na volta da ficha ou do cadastro, recarrega sempre: o produto pode ter mudado.
+       // Na volta da ficha ou do cadastro, recarrega sempre: o produto pode ter mudado.
   Future<void> _abrirFicha(Produto produto) async {
-    avisar(context, 'Em breve (I0-FL-14).');
+    final produtos = context.read<ProdutosProvider>();
+    await context.push('/produtos/${produto.idProduto}');
+    produtos.carregar();
+
   }
 
   /// O cadastro devolve o id do produto novo; aí a ficha dele abre, para a Keila montar.

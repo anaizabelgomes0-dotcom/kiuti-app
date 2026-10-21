@@ -5,6 +5,7 @@ import 'package:kiuti_app/ui/screens/home_screen.dart';
 import 'package:kiuti_app/ui/screens/login_screen.dart';
 import 'package:kiuti_app/ui/screens/configuracoes/configuracoes_screen.dart';
 import 'package:kiuti_app/ui/screens/produtos/produtos_screen.dart';
+import 'package:kiuti_app/ui/screens/produtos/ficha_screen.dart';
 
 /// Todas as rotas do app. Sem token, qualquer rota leva ao login; com token, o login leva às abas.
 GoRouter criarRotas(SessaoProvider sessao) {
@@ -40,8 +41,13 @@ GoRouter criarRotas(SessaoProvider sessao) {
             path: '/configuracoes',
             builder: (context, state) => const ConfiguracoesScreen(),
           ),
+          GoRoute(
+           path: '/produtos/:id',
+          builder: (context, state) => FichaScreen(idProduto: int.parse(state.pathParameters['id']!)),
+),
         ],
       ),
+       
 
       // Telas que abrem por cima das abas (com context.push). Cada tarefa acrescenta a sua aqui.
     ],
