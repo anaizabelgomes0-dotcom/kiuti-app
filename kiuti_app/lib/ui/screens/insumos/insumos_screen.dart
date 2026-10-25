@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kiuti_app/models/insumo.dart';
 import 'package:kiuti_app/providers/insumos_provider.dart';
 import 'package:kiuti_app/theme/cores.dart';
 import 'package:kiuti_app/theme/tema.dart';
 import 'package:kiuti_app/ui/widgets/cabecalho_aba.dart';
 import 'package:kiuti_app/ui/widgets/cartao_rosa.dart';
-// import 'package:kiuti_app/ui/widgets/confirmacao.dart';
 import 'package:kiuti_app/ui/widgets/estados.dart';
 import 'package:kiuti_app/ui/widgets/formatos.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 
 class InsumosScreen extends StatefulWidget {
   const InsumosScreen({super.key});
@@ -26,12 +25,12 @@ class _InsumosScreenState extends State<InsumosScreen> {
   }
 
   void _abrir([Insumo? insumo]) {
-  if (insumo == null) {
-    context.push('/insumos/novo');
-  } else {
-    context.push('/insumos/editar', extra: insumo);
+    if (insumo == null) {
+      context.push('/insumos/novo');
+    } else {
+      context.push('/insumos/editar', extra: insumo);
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {

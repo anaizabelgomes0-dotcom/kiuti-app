@@ -7,7 +7,6 @@ import 'package:kiuti_app/theme/cores.dart';
 import 'package:kiuti_app/theme/tema.dart';
 import 'package:kiuti_app/ui/widgets/cabecalho_aba.dart';
 import 'package:kiuti_app/ui/widgets/cartao_rosa.dart';
-import 'package:kiuti_app/ui/widgets/confirmacao.dart';
 import 'package:kiuti_app/ui/widgets/estados.dart';
 import 'package:kiuti_app/ui/widgets/formatos.dart';
 import 'package:kiuti_app/ui/widgets/selo_situacao.dart';
@@ -27,17 +26,20 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
     // Depois do primeiro desenho: chamar o provider durante o build da tela dá erro.
     WidgetsBinding.instance.addPostFrameCallback((_) => context.read<ProdutosProvider>().carregar());
   }
-       // Na volta da ficha ou do cadastro, recarrega sempre: o produto pode ter mudado.
+
+  // Na volta da ficha ou do cadastro, recarrega sempre: o produto pode ter mudado.
   Future<void> _abrirFicha(Produto produto) async {
     final produtos = context.read<ProdutosProvider>();
     await context.push('/produtos/${produto.idProduto}');
     produtos.carregar();
-
   }
 
   /// O cadastro devolve o id do produto novo; aí a ficha dele abre, para a Keila montar.
   Future<void> _novo() async {
-    avisar(context, 'Em breve (I0-FL-13).');
+    final produtos = context.read<ProdutosProvider>();
+    final idNovo = await context.push<int>('/produtos/novo');
+    if (idNovo != null && mounted) await context.push('/produtos/$idNovo');
+    produtos.carregar();
   }
 
   @override

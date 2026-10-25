@@ -6,9 +6,11 @@ import 'package:kiuti_app/ui/screens/login_screen.dart';
 import 'package:kiuti_app/ui/screens/configuracoes/configuracoes_screen.dart';
 import 'package:kiuti_app/ui/screens/produtos/produtos_screen.dart';
 import 'package:kiuti_app/ui/screens/produtos/ficha_screen.dart';
+import 'package:kiuti_app/ui/screens/produtos/novo_produto_screen.dart';
 import 'package:kiuti_app/ui/screens/insumos/insumos_screen.dart';
 import 'package:kiuti_app/ui/screens/insumos/insumo_form_screen.dart';
 import 'package:kiuti_app/models/insumo.dart';
+
 GoRouter criarRotas(SessaoProvider sessao) {
   return GoRouter(
     initialLocation: '/produtos',
@@ -21,6 +23,13 @@ GoRouter criarRotas(SessaoProvider sessao) {
     },
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+
+      // "/produtos/novo" antes de "/produtos/:id" (que está dentro do ShellRoute abaixo):
+      // senão "novo" seria lido como um id.
+      GoRoute(
+        path: '/produtos/novo',
+        builder: (context, state) => const NovoProdutoScreen(),
+      ),
 
       // As quatro abas, com a barra embaixo. Trocar de aba cria a tela de novo, e ela busca os dados outra vez.
       ShellRoute(
@@ -43,12 +52,12 @@ GoRouter criarRotas(SessaoProvider sessao) {
             builder: (context, state) => const ConfiguracoesScreen(),
           ),
           GoRoute(
-           path: '/produtos/:id',
-          builder: (context, state) => FichaScreen(idProduto: int.parse(state.pathParameters['id']!)),
-),
+            path: '/produtos/:id',
+            builder: (context, state) => FichaScreen(idProduto: int.parse(state.pathParameters['id']!)),
+          ),
         ],
       ),
-      
+
       GoRoute(path: '/insumos/novo', builder: (context, state) => const InsumoFormScreen()),
       GoRoute(
         path: '/insumos/editar',
