@@ -26,7 +26,7 @@ Future<void> mostrarInsumoEmUso(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Mascote(),
+            const Mascote(pose: Pose.bloqueado),
             const SizedBox(height: 16),
             Text('${insumo.nome} está em uso', style: fredoka(tamanho: 22), textAlign: TextAlign.center),
             const SizedBox(height: 8),

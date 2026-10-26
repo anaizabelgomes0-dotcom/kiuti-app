@@ -10,6 +10,7 @@ import 'package:kiuti_app/ui/widgets/cartao_rosa.dart';
 import 'package:kiuti_app/ui/widgets/confirmacao.dart';
 import 'package:kiuti_app/ui/widgets/estados.dart';
 import 'package:kiuti_app/ui/widgets/formatos.dart';
+import 'package:kiuti_app/ui/widgets/logo_kiuti.dart';
 import 'package:provider/provider.dart';
 
 class ReajustesScreen extends StatefulWidget {
@@ -63,6 +64,7 @@ class _ReajustesScreenState extends State<ReajustesScreen> {
                       'os produtos afetados aparecem aqui.',
                   textoBotao: 'Atualizar um insumo',
                   aoTocar: () => context.go('/insumos'), // troca para a aba Insumos
+                  pose: Pose.concluido,
                 )
               else
                 for (final produto in provider.produtos)

@@ -12,11 +12,28 @@ class LogoKiuti extends StatelessWidget {
   Widget build(BuildContext context) => Image.asset('assets/logo.png', height: altura);
 }
 
-/// O gato: só em estados vazios, confirmações e avisos de exclusão.
+/// As poses do gato (Manual da Marca → Logo), cada uma com o seu arquivo em `assets/`.
+enum Pose {
+  boasVindas('boas_vindas'),
+  convite('convite'),
+  esperando('esperando'),
+  concluido('concluido'),
+  dica('dica'),
+  cuidado('cuidado'),
+  bloqueado('bloqueado'),
+  dormindo('dormindo');
+
+  const Pose(this.arquivo);
+
+  final String arquivo;
+}
+
+/// O gato: só em estados vazios, confirmações e avisos de exclusão. Sem pose, usa o mascote base.
 class Mascote extends StatelessWidget {
-  const Mascote({super.key, this.tamanho = 96});
+  const Mascote({super.key, this.tamanho = 96, this.pose});
 
   final double tamanho;
+  final Pose? pose;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +42,7 @@ class Mascote extends StatelessWidget {
       height: tamanho,
       padding: EdgeInsets.all(tamanho * 0.12),
       decoration: const BoxDecoration(color: Cores.rosa, shape: BoxShape.circle),
-      child: Image.asset('assets/mascote.png'),
+      child: Image.asset(pose == null ? 'assets/mascote.png' : 'assets/mascote_${pose!.arquivo}.png'),
     );
   }
 }

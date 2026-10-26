@@ -238,7 +238,7 @@ class _InsumoFormScreenState extends State<InsumoFormScreen> {
           else if (!_editando)
             const Row(
               children: [
-                Mascote(tamanho: 64),
+                Mascote(tamanho: 64, pose: Pose.dica),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(

@@ -22,7 +22,7 @@ Future<bool> confirmarExclusao(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Mascote(),
+            const Mascote(pose: Pose.cuidado),
             const SizedBox(height: 16),
             Text(titulo, style: fredoka(tamanho: 22), textAlign: TextAlign.center),
             const SizedBox(height: 8),

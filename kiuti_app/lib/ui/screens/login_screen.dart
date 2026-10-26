@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.all(24),
           children: [
             const SizedBox(height: 32),
-            const Center(child: Mascote(tamanho: 140)),
+            const Center(child: Mascote(tamanho: 140, pose: Pose.boasVindas)),
             const SizedBox(height: 16),
             const Center(child: LogoKiuti(altura: 56)),
             const SizedBox(height: 8),

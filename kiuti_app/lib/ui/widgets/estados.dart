@@ -7,12 +7,20 @@ import 'logo_kiuti.dart';
 
 /// Lista vazia: mascote, título, texto e (opcional) um botão.
 class EstadoVazio extends StatelessWidget {
-  const EstadoVazio({super.key, required this.titulo, this.texto, this.textoBotao, this.aoTocar});
+  const EstadoVazio({
+    super.key,
+    required this.titulo,
+    this.texto,
+    this.textoBotao,
+    this.aoTocar,
+    this.pose = Pose.convite,
+  });
 
   final String titulo;
   final String? texto;
   final String? textoBotao;
   final VoidCallback? aoTocar;
+  final Pose pose;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +30,7 @@ class EstadoVazio extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Mascote(),
+            Mascote(pose: pose),
             const SizedBox(height: 16),
             Text(titulo, style: fredoka(tamanho: 20), textAlign: TextAlign.center),
             if (texto != null) ...[

@@ -115,7 +115,7 @@ Widget _composicaoVazia(Produto produto) {
     child: Column(
       children: [
         const Align(alignment: Alignment.centerLeft, child: TituloSecao('Composição')),
-        const Mascote(tamanho: 110),
+        const Mascote(tamanho: 110, pose: Pose.convite),
         const SizedBox(height: 12),
         Text('Nenhum insumo ainda', style: fredoka(tamanho: 18)),
         const SizedBox(height: 6),
