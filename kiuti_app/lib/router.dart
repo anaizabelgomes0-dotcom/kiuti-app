@@ -10,6 +10,8 @@ import 'package:kiuti_app/ui/screens/produtos/novo_produto_screen.dart';
 import 'package:kiuti_app/ui/screens/insumos/insumos_screen.dart';
 import 'package:kiuti_app/ui/screens/insumos/insumo_form_screen.dart';
 import 'package:kiuti_app/models/insumo.dart';
+import 'package:kiuti_app/ui/screens/reajustes/reajustes_screen.dart';
+import 'package:kiuti_app/ui/screens/produtos/dados_produto_screen.dart';
 
 GoRouter criarRotas(SessaoProvider sessao) {
   return GoRouter(
@@ -45,7 +47,7 @@ GoRouter criarRotas(SessaoProvider sessao) {
           ),
           GoRoute(
             path: '/reajustes',
-            builder: (context, state) => const Center(child: Text('Reajustes: em construção (I0-FL-20)')),
+            builder: (context, state) => const ReajustesScreen(),
           ),
           GoRoute(
             path: '/configuracoes',
@@ -57,6 +59,8 @@ GoRouter criarRotas(SessaoProvider sessao) {
           ),
         ],
       ),
+
+      GoRoute(path: '/produtos/:id/dados', builder: (context, state) => const DadosProdutoScreen()),
 
       GoRoute(path: '/insumos/novo', builder: (context, state) => const InsumoFormScreen()),
       GoRoute(

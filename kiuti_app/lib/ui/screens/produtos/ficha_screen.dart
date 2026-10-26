@@ -12,6 +12,10 @@ import 'package:kiuti_app/ui/widgets/estados.dart';
 import 'package:kiuti_app/ui/widgets/formatos.dart';
 import 'package:kiuti_app/ui/widgets/selo_situacao.dart';
 import 'package:provider/provider.dart';
+import 'package:dotted_border/dotted_border.dart';
+import 'package:kiuti_app/models/situacao.dart';
+import 'package:kiuti_app/ui/widgets/logo_kiuti.dart';
+import 'package:go_router/go_router.dart';
 
 
 class FichaScreen extends StatefulWidget {
@@ -81,14 +85,74 @@ class _FichaScreenState extends State<FichaScreen> {
     avisar(context, 'Em breve (I0-FL-17).');
   }
 
-  Future<void> _abrirDados() async {
-    avisar(context, 'Em breve (I0-FL-18).');
-  }
+ Future<void> _abrirDados() async {
+  await context.push('/produtos/${widget.idProduto}/dados');
+}
 
-  Future<void> _excluir() async {
-    avisar(context, 'Em breve (I0-FL-19).');
+ Future<void> _excluir() async {
+  final ficha = context.read<FichaProvider>();
+  final produto = ficha.produto!;
+  final n = ficha.itens.length;
+  final confirmou = await confirmarExclusao(
+    context,
+    titulo: 'Excluir este produto?',
+    texto: 'O ${produto.nome} e a ficha dele ($n insumo${n == 1 ? '' : 's'}) serão apagados. '
+        'Não dá para desfazer.',
+    textoBotao: 'Excluir produto',
+  );
+  if (!confirmou || !mounted) return;
+  try {
+    await ficha.excluirProduto();
+    if (!mounted) return;
+    context.pop(); // volta para a lista, que recarrega sozinha
+  } on ApiException catch (e) {
+    if (mounted) avisar(context, e.mensagem);
   }
-
+}
+/// Ficha incompleta (RN04): mascote e botão no lugar da composição.
+Widget _composicaoVazia(Produto produto) {
+  return CartaoRosa(
+    child: Column(
+      children: [
+        const Align(alignment: Alignment.centerLeft, child: TituloSecao('Composição')),
+        const Mascote(tamanho: 110),
+        const SizedBox(height: 12),
+        Text('Nenhum insumo ainda', style: fredoka(tamanho: 18)),
+        const SizedBox(height: 6),
+        Text(
+          'Adicione o que vai em ${produto.nome} para o app calcular o custo, o preço sugerido e o lucro.',
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 16),
+        BotaoPrincipal(texto: 'Adicionar o primeiro insumo', icone: Icons.add, aoTocar: _adicionarInsumo),
+      ],
+    ),
+  );
+}
+/// Ficha incompleta: preço e lucro "—", contorno tracejado.
+Widget _precoIncompleto() {
+  return DottedBorder(
+    options: const RoundedRectDottedBorderOptions(
+      radius: Radius.circular(20),
+      dashPattern: [6, 4],
+      strokeWidth: 1.5,
+      color: Cores.cinza,
+      padding: EdgeInsets.all(20),
+    ),
+    child: const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(children: [Text('Preço sugerido'), Spacer(), Text('—')]),
+        SizedBox(height: 8),
+        Row(children: [Text('Lucro com o preço atual'), Spacer(), Text('—')]),
+        SizedBox(height: 12),
+        SeloSituacao(Situacao.fichaIncompleta),
+        SizedBox(height: 8),
+        Text('Fora dos reajustes por enquanto.', style: TextStyle(fontSize: 12, color: Cores.cinza)),
+      ],
+    ),
+  );
+}
   @override
   Widget build(BuildContext context) {
     final ficha = context.watch<FichaProvider>();
@@ -125,7 +189,9 @@ class _FichaScreenState extends State<FichaScreen> {
           ]),
         ),
         const SizedBox(height: 12),
-        _composicao(produto, itens),
+        if (incompleta) _composicaoVazia(produto) else _composicao(produto, itens),
+
+        
         const SizedBox(height: 12),
         CartaoRosa(
           child: Row(
@@ -146,7 +212,9 @@ class _FichaScreenState extends State<FichaScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        if (!incompleta) _preco(produto), // a ficha incompleta ganha o seu bloco na I0-FL-15
+
+        if (incompleta) _precoIncompleto() else _preco(produto),
+        // a ficha incompleta ganha o seu bloco na I0-FL-15
         const SizedBox(height: 24),
         BotaoContorno(texto: 'Excluir', icone: Icons.delete_outline, cor: Cores.vermelho, aoTocar: _excluir),
       ],
