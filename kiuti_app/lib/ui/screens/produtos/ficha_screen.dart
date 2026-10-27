@@ -16,7 +16,8 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:kiuti_app/models/situacao.dart';
 import 'package:kiuti_app/ui/widgets/logo_kiuti.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:kiuti_app/ui/screens/insumos/adicionar_insumo_sheet.dart';
+import 'package:kiuti_app/ui/screens/insumos/editar_item_sheet.dart';
 
 class FichaScreen extends StatefulWidget {
   const FichaScreen({super.key, required this.idProduto});
@@ -77,13 +78,23 @@ class _FichaScreenState extends State<FichaScreen> {
     }
   }
 
-  Future<void> _adicionarInsumo() async {
-    avisar(context, 'Em breve (I0-FL-16).');
-  }
+/// Abre uma folha que sobe de baixo. A folha salva pelo FichaProvider, e a ficha se redesenha sozinha.
+Future<void> _abrirFolha(Widget folha) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true, // deixa a folha crescer e subir com o teclado
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+    builder: (ctx) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+      child: folha,
+    ),
+  );
+}
 
-  Future<void> _editarItem(ItemFicha item) async {
-    avisar(context, 'Em breve (I0-FL-17).');
-  }
+Future<void> _adicionarInsumo() => _abrirFolha(const AdicionarInsumoSheet());
+
+Future<void> _editarItem(ItemFicha item) => _abrirFolha(EditarItemSheet(item: item));
 
  Future<void> _abrirDados() async {
   await context.push('/produtos/${widget.idProduto}/dados');
@@ -299,7 +310,7 @@ Widget _precoIncompleto() {
               Text(formatarReais(produto.precoSugerido!), style: fredoka(tamanho: 30, cor: Cores.rosa)),
             ],
           ),
-          // A taxa cadastrada só vale até R$ 79,99 (ADR 001, faixas da Shopee).
+          
           if (produto.precoSugerido! > 79.99)
             const Text('Acima de R\$ 79,99 a Shopee cobra outra taxa: confira o preço.', style: branco),
           const SizedBox(height: 8),
