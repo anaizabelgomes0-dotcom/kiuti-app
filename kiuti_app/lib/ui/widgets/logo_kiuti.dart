@@ -1,3 +1,4 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 
 import 'package:kiuti_app/theme/cores.dart';
@@ -37,12 +38,21 @@ class Mascote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: tamanho,
-      height: tamanho,
-      padding: EdgeInsets.all(tamanho * 0.12),
-      decoration: const BoxDecoration(color: Cores.rosa, shape: BoxShape.circle),
-      child: Image.asset(pose == null ? 'assets/mascote.png' : 'assets/mascote_${pose!.arquivo}.png'),
+    // Fundo branco com o mesmo tracejado do preço sugerido da ficha incompleta.
+    return DottedBorder(
+      options: const CircularDottedBorderOptions(
+        dashPattern: [6, 4],
+        strokeWidth: 1.5,
+        color: Cores.cinza,
+        padding: EdgeInsets.zero,
+      ),
+      child: Container(
+        width: tamanho,
+        height: tamanho,
+        padding: EdgeInsets.all(tamanho * 0.12),
+        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+        child: Image.asset(pose == null ? 'assets/mascote.png' : 'assets/mascote_${pose!.arquivo}.png'),
+      ),
     );
   }
 }

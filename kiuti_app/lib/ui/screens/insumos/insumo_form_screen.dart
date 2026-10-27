@@ -203,7 +203,7 @@ class _InsumoFormScreenState extends State<InsumoFormScreen> {
                   decoration: BoxDecoration(color: Cores.rosa, borderRadius: BorderRadius.circular(14)),
                   child: Row(
                     children: [
-                      Text('Custo por $_unidade'),
+                      Text('Custo por ${unidadePorExtenso[_unidade] ?? _unidade}'),
                       const Spacer(),
                       Text(
                         custoPorUnidade == null ? '—' : formatarReaisUnitario(custoPorUnidade),

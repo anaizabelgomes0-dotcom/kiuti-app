@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kiuti_app/models/item_ficha.dart';
+import 'package:kiuti_app/models/configuracao.dart';
 import 'package:kiuti_app/models/produto.dart';
+import 'package:kiuti_app/providers/configuracao_provider.dart';
 import 'package:kiuti_app/providers/ficha_provider.dart';
 import 'package:kiuti_app/services/api_exception.dart';
 import 'package:kiuti_app/theme/cores.dart';
@@ -16,8 +18,8 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:kiuti_app/models/situacao.dart';
 import 'package:kiuti_app/ui/widgets/logo_kiuti.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kiuti_app/ui/screens/insumos/adicionar_insumo_sheet.dart';
-import 'package:kiuti_app/ui/screens/insumos/editar_item_sheet.dart';
+import 'package:kiuti_app/ui/screens/produtos/adicionar_insumo_sheet.dart';
+import 'package:kiuti_app/ui/screens/produtos/editar_item_sheet.dart';
 
 class FichaScreen extends StatefulWidget {
   const FichaScreen({super.key, required this.idProduto});
@@ -31,6 +33,8 @@ class FichaScreen extends StatefulWidget {
 class _FichaScreenState extends State<FichaScreen> {
   final _margem = TextEditingController();
   final _focoMargem = FocusNode();
+  final _lucro = TextEditingController(); // lucro desejado em R$: só espelha a margem, que é o que a API guarda
+  final _focoLucro = FocusNode();
 
   @override
   void initState() {
@@ -41,20 +45,47 @@ class _FichaScreenState extends State<FichaScreen> {
     _focoMargem.addListener(() {
       if (!_focoMargem.hasFocus) _salvarMargem();
     });
+    _focoLucro.addListener(() {
+      if (!_focoLucro.hasFocus) _salvarMargem();
+    });
   }
 
   @override
   void dispose() {
     _margem.dispose();
     _focoMargem.dispose();
+    _lucro.dispose();
+    _focoLucro.dispose();
     super.dispose();
   }
 
   Future<void> _carregar() async {
     final ficha = context.read<FichaProvider>();
+    context.read<ConfiguracaoProvider>().carregar(); // taxas da Shopee na composição; a ficha não espera por elas
     await ficha.carregar(widget.idProduto);
     final produto = ficha.produto;
-    if (mounted && produto != null) _margem.text = formatarNumero(produto.efetivos.percLucro);
+    if (mounted && produto != null) _preencherMargem(produto);
+  }
+
+  /// Margem e lucro desejado como a API devolveu. Na ficha incompleta não há lucro-meta (RN04).
+  void _preencherMargem(Produto produto) {
+    _margem.text = formatarNumero(produto.efetivos.percLucro);
+    _lucro.text = produto.lucroMeta == null ? '' : formatarValor(produto.lucroMeta!);
+  }
+
+  /// Digitou a margem: o lucro acompanha (lucro_meta = custo_total × margem / 100, ADR 001).
+  void _margemMudou(String texto) {
+    final margem = lerNumero(texto);
+    final custo = context.read<FichaProvider>().produto!.custoTotal;
+    _lucro.text = margem == null ? '' : formatarValor(custo * margem / 100);
+  }
+
+  /// Digitou o lucro: a margem acompanha, em 2 casas como a coluna (DECIMAL(5,2)).
+  void _lucroMudou(String texto) {
+    final lucro = lerNumero(texto);
+    final custo = context.read<FichaProvider>().produto!.custoTotal;
+    if (custo <= 0) return; // sem custo não há margem que dê esse lucro
+    _margem.text = lucro == null ? '' : formatarNumero((lucro / custo * 100 * 100).round() / 100);
   }
 
   Future<void> _salvarMargem() async {
@@ -62,17 +93,22 @@ class _FichaScreenState extends State<FichaScreen> {
     final ficha = context.read<FichaProvider>();
     final produto = ficha.produto;
     if (produto == null) return;
-    final texto = _margem.text.trim();
+    final texto = _margem.text.trim(); // o lucro em R$ já foi convertido para a margem ao digitar
     if (texto == formatarNumero(produto.efetivos.percLucro)) return; // não mudou
     final nova = texto.isEmpty ? null : lerNumero(texto); // em branco = volta ao padrão (RN02)
     if (texto.isNotEmpty && (nova == null || nova < 0)) {
       avisar(context, 'Margem inválida.');
-      _margem.text = formatarNumero(produto.efetivos.percLucro);
+      _preencherMargem(produto);
+      return;
+    }
+    if (nova != null && nova > 999.99) {
+      avisar(context, 'Lucro muito alto para este custo: a margem passa de 999,99%.');
+      _preencherMargem(produto);
       return;
     }
     try {
       await ficha.atualizarProduto({...produto.dadosEditaveis(), 'perc_lucro': nova});
-      if (mounted) _margem.text = formatarNumero(ficha.produto!.efetivos.percLucro);
+      if (mounted) _preencherMargem(ficha.produto!);
     } on ApiException catch (e) {
       if (mounted) avisar(context, e.mensagem);
     }
@@ -92,12 +128,25 @@ Future<void> _abrirFolha(Widget folha) {
   );
 }
 
-Future<void> _adicionarInsumo() => _abrirFolha(const AdicionarInsumoSheet());
+// Insumos e Dados do produto mudam o custo, então o lucro em R$ é preenchido de novo ao voltar.
+Future<void> _adicionarInsumo() async {
+  await _abrirFolha(const AdicionarInsumoSheet());
+  _depoisDeMudarCusto();
+}
 
-Future<void> _editarItem(ItemFicha item) => _abrirFolha(EditarItemSheet(item: item));
+Future<void> _editarItem(ItemFicha item) async {
+  await _abrirFolha(EditarItemSheet(item: item));
+  _depoisDeMudarCusto();
+}
 
  Future<void> _abrirDados() async {
   await context.push('/produtos/${widget.idProduto}/dados');
+  _depoisDeMudarCusto();
+}
+
+void _depoisDeMudarCusto() {
+  final produto = mounted ? context.read<FichaProvider>().produto : null;
+  if (produto != null) _preencherMargem(produto);
 }
 
  Future<void> _excluir() async {
@@ -186,6 +235,7 @@ Widget _precoIncompleto() {
     if (produto == null) return const Center(child: CircularProgressIndicator());
     final itens = ficha.itens;
     final incompleta = itens.isEmpty;
+    final config = context.watch<ConfiguracaoProvider>().config;
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -200,24 +250,54 @@ Widget _precoIncompleto() {
           ]),
         ),
         const SizedBox(height: 12),
-        if (incompleta) _composicaoVazia(produto) else _composicao(produto, itens),
+        if (incompleta) _composicaoVazia(produto) else _composicao(produto, itens, config),
 
         
         const SizedBox(height: 12),
         CartaoRosa(
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Margem desejada', style: fredoka(tamanho: 16, peso: FontWeight.w500)),
-              const Spacer(),
-              SizedBox(
-                width: 100,
-                child: TextField(
-                  controller: _margem,
-                  focusNode: _focoMargem,
-                  textAlign: TextAlign.right,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(suffixText: '%', isDense: true),
-                ),
+              Row(
+                children: [
+                  Text('Margem desejada', style: fredoka(tamanho: 16, peso: FontWeight.w500)),
+                  const Spacer(),
+                  SizedBox(
+                    width: 100,
+                    child: TextField(
+                      controller: _margem,
+                      focusNode: _focoMargem,
+                      onChanged: _margemMudou,
+                      textAlign: TextAlign.right,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(suffixText: '%', isDense: true),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Text('Lucro desejado', style: fredoka(tamanho: 16, peso: FontWeight.w500)),
+                  const Spacer(),
+                  SizedBox(
+                    width: 100,
+                    child: TextField(
+                      controller: _lucro,
+                      focusNode: _focoLucro,
+                      onChanged: _lucroMudou,
+                      enabled: !incompleta, // sem insumos não há lucro-meta (RN04)
+                      textAlign: TextAlign.right,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(prefixText: 'R\$ ', hintText: '—', isDense: true),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'O app guarda a margem: se o custo subir, o lucro em reais sobe junto.',
+                style: TextStyle(fontSize: 12, color: Cores.cinza),
               ),
             ],
           ),
@@ -225,15 +305,14 @@ Widget _precoIncompleto() {
         const SizedBox(height: 12),
 
         if (incompleta) _precoIncompleto() else _preco(produto),
-        // a ficha incompleta ganha o seu bloco na I0-FL-15
         const SizedBox(height: 24),
         BotaoContorno(texto: 'Excluir', icone: Icons.delete_outline, cor: Cores.vermelho, aoTocar: _excluir),
       ],
     );
   }
 
-  /// Cartão "Composição": itens, custos fixos maiores que zero e o custo total.
-  Widget _composicao(Produto produto, List<ItemFicha> itens) {
+  /// Cartão "Composição": itens, custos fixos maiores que zero, o custo total e as taxas da Shopee.
+  Widget _composicao(Produto produto, List<ItemFicha> itens, Configuracao? config) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -270,6 +349,7 @@ Widget _precoIncompleto() {
                   Text(formatarReais(produto.custoTotal), style: fredoka(tamanho: 17)),
                 ],
               ),
+              if (config != null) ..._taxasShopee(produto, config),
             ],
           ),
         ),
@@ -293,6 +373,30 @@ Widget _precoIncompleto() {
       _CustoFixo('Despesas variáveis', p.efetivos.despesasVariaveis, p.despesasVariaveis == null),
     ];
     return todos.where((custo) => custo.valor > 0).toList();
+  }
+
+  /// Taxas da Shopee sobre o preço sugerido: custo + lucro + taxas fecha (quase) o preço, que sobe de 10 em 10 centavos.
+  List<Widget> _taxasShopee(Produto produto, Configuracao config) {
+    final preco = produto.precoSugerido!;
+    final taxa = preco * config.percTaxaShopee / 100;
+    return [
+      const SizedBox(height: 8),
+      const Text('Shopee · sobre o preço sugerido', style: TextStyle(fontSize: 12, color: Cores.cinza)),
+      _LinhaComposicao(
+        nome: 'Taxa Shopee',
+        detalhe: '${formatarNumero(config.percTaxaShopee)}% de ${formatarReais(preco)}',
+        valor: taxa,
+      ),
+      _LinhaComposicao(nome: 'Taxa fixa Shopee', detalhe: 'por venda', valor: config.taxaFixaShopee),
+      const Divider(color: Cores.preto),
+      Row(
+        children: [
+          Text('Custo + taxas', style: fredoka(tamanho: 17)),
+          const Spacer(),
+          Text(formatarReais(produto.custoTotal + taxa + config.taxaFixaShopee), style: fredoka(tamanho: 17)),
+        ],
+      ),
+    ];
   }
 
   /// Bloco preto com preço sugerido, lucro e selo.
@@ -337,14 +441,14 @@ class _CustoFixo {
   final bool padrao; // true = veio das Configurações
 }
 
-/// "Resina epóxi · 8 g × 0,12 ........ 0,96 >"
+/// "Resina epóxi · 8 g × 0,12 ........ 0,96 >". Sem aoTocar (taxas da Shopee), sem a seta.
 class _LinhaComposicao extends StatelessWidget {
-  const _LinhaComposicao({required this.nome, this.detalhe, required this.valor, required this.aoTocar});
+  const _LinhaComposicao({required this.nome, this.detalhe, required this.valor, this.aoTocar});
 
   final String nome;
   final String? detalhe;
   final double valor;
-  final VoidCallback aoTocar;
+  final VoidCallback? aoTocar;
 
   @override
   Widget build(BuildContext context) {
@@ -363,7 +467,7 @@ class _LinhaComposicao extends StatelessWidget {
               ),
             ),
             Text(formatarValor(valor), style: const TextStyle(fontWeight: FontWeight.w600)),
-            const Icon(Icons.chevron_right, size: 20),
+            Icon(Icons.chevron_right, size: 20, color: aoTocar == null ? Colors.transparent : null),
           ],
         ),
       ),

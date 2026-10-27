@@ -1,2 +1,2 @@
 /// Endereço da API. Troque conforme a tabela "Qual URL da API usar" do guia Flutter.
-const apiUrl = 'http://localhost:8000';
+const apiUrl = 'https://kiuti-api.onrender.com/api/v1';

@@ -33,3 +33,15 @@ class Insumo {
 
 /// Unidades aceitas pela API.
 const unidadesDeCompra = ['g', 'kg', 'm', 'cm', 'ml', 'l', 'un', 'pct'];
+
+/// A unidade escrita por extenso, para frases como "Custo por grama".
+const unidadePorExtenso = {
+  'g': 'grama',
+  'kg': 'quilo',
+  'm': 'metro',
+  'cm': 'centímetro',
+  'ml': 'mililitro',
+  'l': 'litro',
+  'un': 'unidade',
+  'pct': 'pacote',
+};
