@@ -11,7 +11,12 @@ class SeloSituacao extends StatelessWidget {
   final Situacao situacao;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: KeyedSubtree(key: ValueKey(situacao), child: _selo()),
+      );
+
+  Widget _selo() {
     const estiloTexto = TextStyle(fontSize: 13, fontWeight: FontWeight.w600);
     switch (situacao) {
       case Situacao.abaixoDaMeta:

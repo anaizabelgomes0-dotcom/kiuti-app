@@ -38,7 +38,17 @@ class Mascote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Fundo branco com o mesmo tracejado do preço sugerido da ficha incompleta.
+    // Entra com um leve efeito elástico. Fundo branco com o mesmo tracejado do preço sugerido da ficha incompleta.
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.6, end: 1),
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.elasticOut,
+      builder: (context, escala, filho) => Transform.scale(scale: escala, child: filho),
+      child: _circulo(),
+    );
+  }
+
+  Widget _circulo() {
     return DottedBorder(
       options: const CircularDottedBorderOptions(
         dashPattern: [6, 4],

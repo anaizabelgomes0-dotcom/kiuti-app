@@ -6,9 +6,12 @@ import 'package:kiuti_app/providers/produtos_provider.dart';
 import 'package:kiuti_app/theme/cores.dart';
 import 'package:kiuti_app/theme/tema.dart';
 import 'package:kiuti_app/ui/widgets/cabecalho_aba.dart';
+import 'package:kiuti_app/ui/widgets/animacoes.dart';
+import 'package:kiuti_app/ui/widgets/campo_busca.dart';
 import 'package:kiuti_app/ui/widgets/cartao_rosa.dart';
 import 'package:kiuti_app/ui/widgets/estados.dart';
 import 'package:kiuti_app/ui/widgets/formatos.dart';
+import 'package:kiuti_app/ui/widgets/logo_kiuti.dart';
 import 'package:kiuti_app/ui/widgets/selo_situacao.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +23,8 @@ class ProdutosScreen extends StatefulWidget {
 }
 
 class _ProdutosScreenState extends State<ProdutosScreen> {
+  String _busca = '';
+
   @override
   void initState() {
     super.initState();
@@ -57,8 +62,9 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
           if (provider.carregando) return const Center(child: CircularProgressIndicator());
           if (provider.erro != null) return ErroComTentar(mensagem: provider.erro!, aoTentar: provider.carregar);
 
-          final produtos = provider.produtos;
-          final total = produtos.length;
+          final todos = provider.produtos;
+          final produtos = [for (final p in todos) if (combinaComBusca(p.nome, _busca)) p];
+          final total = todos.length;
           return RefreshIndicator(
             onRefresh: provider.carregar,
             child: ListView(
@@ -68,7 +74,14 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                   titulo: 'Produtos',
                   direita: Text('$total produto${total == 1 ? '' : 's'}', style: const TextStyle(color: Cores.cinza)),
                 ),
-                if (produtos.isEmpty)
+                if (todos.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                    child: CampoBusca(dica: 'Buscar produto', aoMudar: (v) => setState(() => _busca = v)),
+                  ),
+                if (todos.isNotEmpty && produtos.isEmpty)
+                  EstadoVazio(titulo: 'Nada encontrado', texto: 'Nenhum produto com "${_busca.trim()}".', pose: Pose.cuidado)
+                else if (produtos.isEmpty)
                   EstadoVazio(
                     titulo: 'Nenhum produto ainda',
                     texto: 'Cadastre o primeiro produto e monte a ficha dele.',
@@ -80,11 +93,17 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: CartaoRosa(
                       padding: EdgeInsets.zero,
-                      child: Column(
-                        children: [
-                          for (final produto in produtos)
-                            _LinhaProduto(produto: produto, aoTocar: () => _abrirFicha(produto)),
-                        ],
+                      child: AjusteDeAltura(
+                        child: Column(
+                          children: [
+                            for (final (i, produto) in produtos.indexed)
+                              EntradaEscalonada(
+                                key: ValueKey(produto.idProduto),
+                                indice: i,
+                                child: _LinhaProduto(produto: produto, aoTocar: () => _abrirFicha(produto)),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

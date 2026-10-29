@@ -4,9 +4,11 @@ import 'package:kiuti_app/models/configuracao.dart';
 import 'package:kiuti_app/models/produto.dart';
 import 'package:kiuti_app/providers/configuracao_provider.dart';
 import 'package:kiuti_app/providers/ficha_provider.dart';
+import 'package:kiuti_app/providers/produtos_provider.dart';
 import 'package:kiuti_app/services/api_exception.dart';
 import 'package:kiuti_app/theme/cores.dart';
 import 'package:kiuti_app/theme/tema.dart';
+import 'package:kiuti_app/ui/widgets/animacoes.dart';
 import 'package:kiuti_app/ui/widgets/botoes.dart';
 import 'package:kiuti_app/ui/widgets/cartao_rosa.dart';
 import 'package:kiuti_app/ui/widgets/confirmacao.dart';
@@ -157,17 +159,28 @@ void _depoisDeMudarCusto() {
     context,
     titulo: 'Excluir este produto?',
     texto: 'O ${produto.nome} e a ficha dele ($n insumo${n == 1 ? '' : 's'}) serão apagados. '
-        'Não dá para desfazer.',
+        'Você ainda poderá desfazer por alguns segundos.',
     textoBotao: 'Excluir produto',
   );
   if (!confirmou || !mounted) return;
-  try {
-    await ficha.excluirProduto();
-    if (!mounted) return;
-    context.pop(); // volta para a lista, que recarrega sozinha
-  } on ApiException catch (e) {
-    if (mounted) avisar(context, e.mensagem);
-  }
+  // Pega tudo antes do pop: depois dele esta tela deixa de existir.
+  final produtos = context.read<ProdutosProvider>();
+  final messenger = ScaffoldMessenger.of(context);
+  final id = produto.idProduto;
+  produtos.ocultar(id);
+  context.pop(); // volta para a lista, que já não mostra o produto
+  avisarComDesfazer(
+    messenger,
+    '${produto.nome} excluído',
+    onDesfazer: () => produtos.restaurar(id),
+    onConfirmar: () async {
+      try {
+        await produtos.confirmarExclusao(id);
+      } on ApiException catch (e) {
+        messenger.showSnackBar(SnackBar(content: Text(e.mensagem)));
+      }
+    },
+  );
 }
 /// Ficha incompleta (RN04): mascote e botão no lugar da composição.
 Widget _composicaoVazia(Produto produto) {
@@ -346,7 +359,7 @@ Widget _precoIncompleto() {
                 children: [
                   Text('Custo total', style: fredoka(tamanho: 17)),
                   const Spacer(),
-                  Text(formatarReais(produto.custoTotal), style: fredoka(tamanho: 17)),
+                  ReaisAnimado(produto.custoTotal, estilo: fredoka(tamanho: 17)),
                 ],
               ),
               if (config != null) ..._taxasShopee(produto, config),
@@ -393,7 +406,7 @@ Widget _precoIncompleto() {
         children: [
           Text('Custo + taxas', style: fredoka(tamanho: 17)),
           const Spacer(),
-          Text(formatarReais(produto.custoTotal + taxa + config.taxaFixaShopee), style: fredoka(tamanho: 17)),
+          ReaisAnimado(produto.custoTotal + taxa + config.taxaFixaShopee, estilo: fredoka(tamanho: 17)),
         ],
       ),
     ];
@@ -411,7 +424,7 @@ Widget _precoIncompleto() {
           Row(
             children: [
               const Expanded(child: Text('Preço sugerido', style: branco)),
-              Text(formatarReais(produto.precoSugerido!), style: fredoka(tamanho: 30, cor: Cores.rosa)),
+              ReaisAnimado(produto.precoSugerido!, estilo: fredoka(tamanho: 30, cor: Cores.rosa)),
             ],
           ),
           
@@ -421,7 +434,7 @@ Widget _precoIncompleto() {
           Row(
             children: [
               const Expanded(child: Text('Lucro com o preço atual', style: branco)),
-              Text(formatarReais(produto.lucroAtual!), style: fredoka(tamanho: 18, cor: Colors.white)),
+              ReaisAnimado(produto.lucroAtual!, estilo: fredoka(tamanho: 18, cor: Colors.white)),
             ],
           ),
           const SizedBox(height: 12),

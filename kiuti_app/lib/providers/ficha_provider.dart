@@ -59,7 +59,4 @@ class FichaProvider extends ChangeNotifier {
     await _itens.remover(_produto!.idProduto, item.idItem);
     await carregar(_produto!.idProduto);
   }
-
-  /// Apaga o produto e a ficha dele (RN13).
-  Future<void> excluirProduto() => _produtos.excluir(_produto!.idProduto);
 }

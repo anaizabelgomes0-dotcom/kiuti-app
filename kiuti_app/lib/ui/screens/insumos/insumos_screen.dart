@@ -5,9 +5,12 @@ import 'package:kiuti_app/providers/insumos_provider.dart';
 import 'package:kiuti_app/theme/cores.dart';
 import 'package:kiuti_app/theme/tema.dart';
 import 'package:kiuti_app/ui/widgets/cabecalho_aba.dart';
+import 'package:kiuti_app/ui/widgets/animacoes.dart';
+import 'package:kiuti_app/ui/widgets/campo_busca.dart';
 import 'package:kiuti_app/ui/widgets/cartao_rosa.dart';
 import 'package:kiuti_app/ui/widgets/estados.dart';
 import 'package:kiuti_app/ui/widgets/formatos.dart';
+import 'package:kiuti_app/ui/widgets/logo_kiuti.dart';
 import 'package:provider/provider.dart';
 
 class InsumosScreen extends StatefulWidget {
@@ -18,6 +21,8 @@ class InsumosScreen extends StatefulWidget {
 }
 
 class _InsumosScreenState extends State<InsumosScreen> {
+  String _busca = '';
+
   @override
   void initState() {
     super.initState();
@@ -47,8 +52,9 @@ class _InsumosScreenState extends State<InsumosScreen> {
           if (provider.carregando) return const Center(child: CircularProgressIndicator());
           if (provider.erro != null) return ErroComTentar(mensagem: provider.erro!, aoTentar: provider.carregar);
 
-          final insumos = provider.insumos;
-          final total = insumos.length;
+          final todos = provider.insumos;
+          final insumos = [for (final i in todos) if (combinaComBusca(i.nome, _busca)) i];
+          final total = todos.length;
           return RefreshIndicator(
             onRefresh: provider.carregar,
             child: ListView(
@@ -58,7 +64,14 @@ class _InsumosScreenState extends State<InsumosScreen> {
                   titulo: 'Insumos',
                   direita: Text('$total insumo${total == 1 ? '' : 's'}', style: const TextStyle(color: Cores.cinza)),
                 ),
-                if (insumos.isEmpty)
+                if (todos.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                    child: CampoBusca(dica: 'Buscar insumo', aoMudar: (v) => setState(() => _busca = v)),
+                  ),
+                if (todos.isNotEmpty && insumos.isEmpty)
+                  EstadoVazio(titulo: 'Nada encontrado', texto: 'Nenhum insumo com "${_busca.trim()}".', pose: Pose.cuidado)
+                else if (insumos.isEmpty)
                   const EstadoVazio(
                     titulo: 'Nenhum insumo ainda',
                     texto: 'Cadastre do jeito que você compra: "500 g por R\$ 60,00".',
@@ -68,10 +81,17 @@ class _InsumosScreenState extends State<InsumosScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: CartaoRosa(
                       padding: EdgeInsets.zero,
-                      child: Column(
-                        children: [
-                          for (final insumo in insumos) _LinhaInsumo(insumo: insumo, aoTocar: () => _abrir(insumo)),
-                        ],
+                      child: AjusteDeAltura(
+                        child: Column(
+                          children: [
+                            for (final (i, insumo) in insumos.indexed)
+                              EntradaEscalonada(
+                                key: ValueKey(insumo.idInsumo),
+                                indice: i,
+                                child: _LinhaInsumo(insumo: insumo, aoTocar: () => _abrir(insumo)),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

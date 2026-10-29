@@ -57,6 +57,30 @@ Future<bool> confirmarExclusao(
   return confirmou == true;
 }
 
+/// Mensagem com "Desfazer". [onConfirmar] roda quando a barra some sem o toque (aí a exclusão vale);
+/// [onDesfazer] roda se tocou. Recebe o messenger porque a tela de origem pode já ter fechado.
+void avisarComDesfazer(
+  ScaffoldMessengerState messenger,
+  String mensagem, {
+  required VoidCallback onDesfazer,
+  required Future<void> Function() onConfirmar,
+}) {
+  messenger.clearSnackBars(); // a barra anterior fecha e confirma a exclusão dela
+  messenger
+      .showSnackBar(
+        SnackBar(
+          content: Text(mensagem),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(label: 'Desfazer', onPressed: onDesfazer),
+        ),
+      )
+      .closed
+      .then((motivo) {
+    if (motivo != SnackBarClosedReason.action) onConfirmar();
+  });
+}
+
 /// Mensagem curta no rodapé da tela.
 void avisar(BuildContext context, String mensagem) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensagem)));

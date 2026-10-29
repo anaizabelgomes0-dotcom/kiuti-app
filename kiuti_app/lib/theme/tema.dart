@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 import 'cores.dart';
@@ -23,6 +24,19 @@ ThemeData criarTema() {
       headlineMedium: fredoka(tamanho: 30),
       titleLarge: fredoka(tamanho: 22),
       titleMedium: fredoka(tamanho: 17, peso: FontWeight.w500),
+    ),
+    // Telas por cima das abas entram com fade + leve deslize (em vez do zoom padrão do Android).
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Cores.preto,
+      actionTextColor: Cores.rosa,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.white,

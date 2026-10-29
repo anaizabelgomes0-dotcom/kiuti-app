@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kiuti_app/ui/widgets/campo_busca.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kiuti_app/models/insumo.dart';
 import 'package:kiuti_app/models/produto.dart';
@@ -24,6 +25,7 @@ class _AdicionarInsumoSheetState extends State<AdicionarInsumoSheet> {
   final _qtde = TextEditingController();
   Insumo? _escolhido;
   String? _erroQtde;
+  String _busca = '';
   bool _salvando = false;
 
   @override
@@ -95,13 +97,15 @@ class _AdicionarInsumoSheetState extends State<AdicionarInsumoSheet> {
             const Center(child: CircularProgressIndicator())
           else if (insumos.erro != null)
             Text(insumos.erro!, style: const TextStyle(color: Cores.vermelho))
-          else
+          else ...[
+            CampoBusca(dica: 'Buscar insumo', aoMudar: (v) => setState(() => _busca = v)),
+            const SizedBox(height: 8),
             ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 260), // a lista rola dentro desse espaço
               child: ListView(
                 shrinkWrap: true,
                 children: [
-                  for (final insumo in insumos.insumos)
+                  for (final insumo in insumos.insumos.where((i) => combinaComBusca(i.nome, _busca)))
                     _OpcaoInsumo(
                       insumo: insumo,
                       jaNaFicha: idsNaFicha.contains(insumo.idInsumo),
@@ -111,6 +115,7 @@ class _AdicionarInsumoSheetState extends State<AdicionarInsumoSheet> {
                 ],
               ),
             ),
+          ],
           Align(
             alignment: Alignment.centerLeft,
             child: TextButton.icon(
