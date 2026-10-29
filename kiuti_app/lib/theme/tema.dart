@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'cores.dart';
 
 /// Fredoka nos títulos, preços e botões; DM Sans nos textos.
 TextStyle fredoka({double tamanho = 16, FontWeight peso = FontWeight.w600, Color cor = Cores.preto}) =>
-    GoogleFonts.fredoka(fontSize: tamanho, fontWeight: peso, color: cor);
+    TextStyle(fontFamily: 'Fredoka', fontSize: tamanho, fontWeight: peso, color: cor);
 
 ThemeData criarTema() {
   final borda = OutlineInputBorder(
@@ -20,7 +19,7 @@ ThemeData criarTema() {
       surface: Colors.white,
     ),
     scaffoldBackgroundColor: Colors.white,
-    textTheme: GoogleFonts.dmSansTextTheme().copyWith(
+    textTheme: Typography.material2021().black.apply(fontFamily: 'DMSans').copyWith(
       headlineMedium: fredoka(tamanho: 30),
       titleLarge: fredoka(tamanho: 22),
       titleMedium: fredoka(tamanho: 17, peso: FontWeight.w500),
