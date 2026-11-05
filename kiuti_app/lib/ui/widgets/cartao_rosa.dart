@@ -2,19 +2,31 @@ import 'package:flutter/material.dart';
 
 import 'package:kiuti_app/theme/cores.dart';
 
-/// Cartão de fundo rosa claro e cantos arredondados, usado em quase todas as telas.
+/// Cartão de cantos arredondados, usado em quase todas as telas.
+/// Padrão: fundo rosa claro. `branco: true`: fundo branco com borda rosa (listas, composição, reajustes).
 class CartaoRosa extends StatelessWidget {
-  const CartaoRosa({super.key, required this.child, this.padding = const EdgeInsets.all(16)});
+  const CartaoRosa({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(16),
+    this.branco = false,
+    this.raio = 20,
+  });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
+  final bool branco;
+  final double raio;
 
   @override
   Widget build(BuildContext context) {
-    // Material (e não Container) para o efeito de toque das ListTile aparecer por cima do rosa.
+    // Material (e não Container) para o efeito de toque das ListTile aparecer por cima do fundo.
     return Material(
-      color: Cores.rosaClaro,
-      borderRadius: BorderRadius.circular(20),
+      color: branco ? Colors.white : Cores.rosaClaro,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(raio),
+        side: branco ? const BorderSide(color: Cores.borda) : BorderSide.none,
+      ),
       clipBehavior: Clip.antiAlias,
       child: Padding(padding: padding, child: SizedBox(width: double.infinity, child: child)),
     );

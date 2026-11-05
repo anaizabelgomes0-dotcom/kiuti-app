@@ -74,7 +74,7 @@ class BotaoContorno extends StatelessWidget {
         foregroundColor: cor,
         side: BorderSide(color: cor),
         shape: const StadiumBorder(),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 18), // altura: tema (52)
         textStyle: fredoka(tamanho: 15, cor: cor),
       ),
       child: Row(

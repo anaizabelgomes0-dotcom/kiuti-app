@@ -102,6 +102,7 @@ class _CartaoReajuste extends StatelessWidget {
   Widget build(BuildContext context) {
     const rotulo = TextStyle(fontSize: 12, color: Cores.cinza);
     return CartaoRosa(
+      branco: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -138,13 +139,15 @@ class _CartaoReajuste extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
+          // Faixa rosa com texto preto: o preço sugerido é a solução, não o problema (sem vermelho).
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+            constraints: const BoxConstraints(minHeight: 52),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(color: Cores.rosa, borderRadius: BorderRadius.circular(14)),
             child: Row(
               children: [
-                const Expanded(child: Text('Novo preço sugerido')),
-                Text(formatarReais(produto.precoSugerido!), style: fredoka(tamanho: 24, cor: Cores.vermelho)),
+                const Expanded(child: Text('Novo preço sugerido', style: TextStyle(fontWeight: FontWeight.w600))),
+                Text(formatarReais(produto.precoSugerido!), style: fredoka(tamanho: 24)),
               ],
             ),
           ),
@@ -156,8 +159,6 @@ class _CartaoReajuste extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 foregroundColor: Cores.preto,
                 side: const BorderSide(color: Cores.preto),
-                shape: const StadiumBorder(),
-                padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               icon: marcando
                   ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))

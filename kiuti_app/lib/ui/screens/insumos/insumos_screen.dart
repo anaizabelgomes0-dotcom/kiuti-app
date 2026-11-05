@@ -79,19 +79,24 @@ class _InsumosScreenState extends State<InsumosScreen> {
                 else
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: CartaoRosa(
-                      padding: EdgeInsets.zero,
-                      child: AjusteDeAltura(
-                        child: Column(
-                          children: [
-                            for (final (i, insumo) in insumos.indexed)
-                              EntradaEscalonada(
-                                key: ValueKey(insumo.idInsumo),
-                                indice: i,
-                                child: _LinhaInsumo(insumo: insumo, aoTocar: () => _abrir(insumo)),
+                    child: AjusteDeAltura(
+                      child: Column(
+                        children: [
+                          for (final (i, insumo) in insumos.indexed)
+                            EntradaEscalonada(
+                              key: ValueKey(insumo.idInsumo),
+                              indice: i,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: CartaoRosa(
+                                  branco: true,
+                                  raio: 16,
+                                  padding: EdgeInsets.zero,
+                                  child: _LinhaInsumo(insumo: insumo, aoTocar: () => _abrir(insumo)),
+                                ),
                               ),
-                          ],
-                        ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
@@ -116,7 +121,12 @@ class _LinhaInsumo extends StatelessWidget {
     final uso = n == 0 ? 'sem uso' : '$n produto${n == 1 ? '' : 's'}';
     return ListTile(
       onTap: aoTocar,
-      title: Text(insumo.nome, style: fredoka(tamanho: 16, peso: FontWeight.w500)),
+      title: Text(
+        insumo.nome,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: fredoka(tamanho: 16, peso: FontWeight.w500),
+      ),
       subtitle: Text(
         '${formatarNumero(insumo.qtdeCompra)} ${insumo.unidadeCompra} por ${formatarReais(insumo.custo)} · $uso',
       ),

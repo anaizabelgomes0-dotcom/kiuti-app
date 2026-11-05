@@ -12,7 +12,16 @@ ThemeData criarTema() {
     borderRadius: BorderRadius.circular(14),
     borderSide: const BorderSide(color: Cores.borda),
   );
+  // Todos os botões com 52 de altura (= BotaoPrincipal): alvo de toque folgado em telas pequenas.
+  const botao = ButtonStyle(
+    minimumSize: WidgetStatePropertyAll(Size(64, 52)),
+    shape: WidgetStatePropertyAll(StadiumBorder()),
+  );
   return ThemeData(
+    filledButtonTheme: const FilledButtonThemeData(style: botao),
+    outlinedButtonTheme: const OutlinedButtonThemeData(style: botao),
+    textButtonTheme: const TextButtonThemeData(style: botao),
+    elevatedButtonTheme: const ElevatedButtonThemeData(style: botao),
     colorScheme: ColorScheme.fromSeed(
       seedColor: Cores.rosa,
       primary: Cores.preto,

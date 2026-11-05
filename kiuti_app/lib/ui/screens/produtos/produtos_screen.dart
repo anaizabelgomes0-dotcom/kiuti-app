@@ -91,19 +91,24 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                 else
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: CartaoRosa(
-                      padding: EdgeInsets.zero,
-                      child: AjusteDeAltura(
-                        child: Column(
-                          children: [
-                            for (final (i, produto) in produtos.indexed)
-                              EntradaEscalonada(
-                                key: ValueKey(produto.idProduto),
-                                indice: i,
-                                child: _LinhaProduto(produto: produto, aoTocar: () => _abrirFicha(produto)),
+                    child: AjusteDeAltura(
+                      child: Column(
+                        children: [
+                          for (final (i, produto) in produtos.indexed)
+                            EntradaEscalonada(
+                              key: ValueKey(produto.idProduto),
+                              indice: i,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: CartaoRosa(
+                                  branco: true,
+                                  raio: 16,
+                                  padding: EdgeInsets.zero,
+                                  child: _LinhaProduto(produto: produto, aoTocar: () => _abrirFicha(produto)),
+                                ),
                               ),
-                          ],
-                        ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
@@ -116,7 +121,8 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
   }
 }
 
-/// "Brinco Flor de Resina / R$ 15,45 · lucro R$ 3,89 ........ [Abaixo da meta]"
+/// "Brinco Flor de Resina" (até 2 linhas, largura toda) / "R$ 15,45 · lucro R$ 3,89 .... [Abaixo da meta]".
+/// O selo fica embaixo para não roubar largura do nome em telas pequenas.
 class _LinhaProduto extends StatelessWidget {
   const _LinhaProduto({required this.produto, required this.aoTocar});
 
@@ -131,9 +137,22 @@ class _LinhaProduto extends StatelessWidget {
         : '$preco · lucro ${formatarReais(produto.lucroAtual!)}';
     return ListTile(
       onTap: aoTocar,
-      title: Text(produto.nome, style: fredoka(tamanho: 16, peso: FontWeight.w500)),
-      subtitle: Text(detalhe),
-      trailing: SeloSituacao(produto.situacao),
+      title: Text(
+        produto.nome,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: fredoka(tamanho: 16, peso: FontWeight.w500),
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Row(
+          children: [
+            Expanded(child: Text(detalhe, maxLines: 1, overflow: TextOverflow.ellipsis)),
+            const SizedBox(width: 8),
+            SeloSituacao(produto.situacao),
+          ],
+        ),
+      ),
     );
   }
 }

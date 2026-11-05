@@ -330,6 +330,7 @@ Widget _precoIncompleto() {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CartaoRosa(
+          branco: true,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
